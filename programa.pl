@@ -149,9 +149,55 @@ famaConcierto(Cantante, FamaConcierto) :- % la fama que me da un concierto que p
     puedeParticipar(Cantante, Concierto),
     concierto(Concierto,_,FamaConcierto,_).
 
+% 4) Sabemos que:
+% - megurineLuka conoce a hatsuneMiku  y a gumi 
+% - gumi conoce a seeU
+% - seeU conoce a kaito
+
+% Queremos verificar si un vocaloid es el único que participa de un
+% concierto, esto se cumple si ninguno de sus conocidos ya sea 
+% directo o indirectos (en cualquiera de los niveles) participa 
+% en el mismo concierto.
+
+conoceA(megurineLuka, hatsuneMiku).
+conoceA(megurineLuka, gumi).
+conoceA(gumi, seeU).
+conoceA(seeU, kaito).
+
+unicoQueParticipa(Cantante, Concierto) :-
+    puedeParticipar(Cantante, Concierto),       % PREDICADO INVERSIBLE!
+    forall((seConocen(Cantante, OtroCantante), Cantante \= OtroCantante), not(puedeParticipar(OtroCantante, Concierto))).
     
+unicoQueParticipaNOT(Cantante, Concierto) :-
+    puedeParticipar(Cantante, Concierto),       % PREDICADO INVERSIBLE!
+    not((seConocen(Cantante, OtroCantante), puedeParticipar(OtroCantante, Concierto))).
 
 
+seConocen(Persona, OtraPersona) :-      % conocer directamente
+    conoceA(Persona, OtraPersona).
+
+seConocen(Persona, OtraPersona) :-      % conocer indirectamente
+    conoceA(Persona, UnTercero),
+    seConocen(UnTercero, OtraPersona).
+
+% 5) Supongamos que aparece un nuevo tipo de concierto y necesitamos
+% tenerlo en cuenta en nuestra solución, explique los cambios que 
+% habría que realizar para que siga todo funcionando. 
+% ¿Qué conceptos facilitaron dicha implementación?
+
+% Si quisiera agregar un nuevo tipo de concierto, simplemente deberia
+% agregar a la base de conocimientos los requesitos que tiene el mismo
+% en el predicado de polimorfismo de cumpleConLosRequisitos/2, y todo
+% lo demas del codigo seria funcionando normalmente
+
+% Es decir, deberia agregar una nueva clasula en el predicado
+% cumpleConLosRequisitos/2 que tenga en cuenta al Cantante y al nuevo 
+% functor con sus respectivos requisitos. Sin necesidad
+% de cambiar otra parte del codigo!!
+
+% El concepto que me facilito los cambios para el nuevo tipo de concierto
+% es el POLIMORFISMO, que nos permite dar un tratamiento en particular
+% a cada uno de los conciertos en la cabeza de la clausula. 
 
 
 
